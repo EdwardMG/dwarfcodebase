@@ -130,6 +130,9 @@ fu! DwarfMode()
 endfu
 
 nno <silent> cmd :call DwarfMode()<CR>
+" still not both under homerow... maybe just dk and give up survey mode which
+" I also don't use
+nno <silent> dh :call DwarfMode()<CR>
 command! Dwarf call DwarfMode()
 
 
