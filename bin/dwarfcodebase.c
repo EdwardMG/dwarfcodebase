@@ -117,13 +117,10 @@ void write(struct cell* p, int* l) {
         FILE* f = fopen("/Users/edwardgallant/dftest", "w+"); if (!f) return;
         char line[BL];
 
-        line[0] = l[0] + '0';
-        line[1] = l[1] + '0';
-        line[2] = l[2] + '0';
-        line[3] = '\0';
-
-        // put the location at the top of the file
-        fputs(line, f);
+        // print location... not fprintf, formatted print to file
+        fprintf(f, "%d", l[0]);
+        fprintf(f, "%d", l[1]);
+        fprintf(f, "%d", l[2]);
         fputs("\n\0", f);
 
         // put each label and path
@@ -153,17 +150,9 @@ int main(int argc, char **argv) {
                 if ( argc == 2) return 0; // did not recieve a path (it was blank or something)
                 for (int i=0; i < max; i++) {
                         if (strcmp(a[i].path, argv[2]) == 0) {
-                                /* so... we return true or false */
-                                // but also we need to update the location. and we somewhat lack all the detail we would like
-                                /* printf("%i\n\n", i); */
-                                // this is sus but seems to work in this depth 0 case
                                 l[0] = i / 100;
-                                l[1] = (i - l[0]) / 10; // why is this turning into a colon now... jeez
-                                l[2] = i - l[0] - (l[1] * 10);
-                                /* printf("%i", l[0]); */
-                                /* printf("%i", l[1]); */
-                                /* printf("%i\n\n", l[2]); */
-
+                                l[1] = (i - (l[0] * 100)) / 10;
+                                l[2] = i - (l[0] * 100) - (l[1] * 10);
                                 write(a, l);
                                 printf("1");
                                 return 0;

@@ -27,6 +27,11 @@ fu! DrawDwarfCodebase()
   call DrawDwarfPopup(r)
 endfu
 
+fu! InitDwarfCodebase()
+  call system(s:prg." p " . expand('%:p'))
+  call DrawDwarfCodebase()
+endfu
+
 fu! MoveDwarfCodebase(a)
   let r = systemlist(s:prg . ' ' . a:a)
   call popup_clear()
@@ -142,6 +147,7 @@ augroup Dwarf
     " in case we forget we already set a file or it's on a much deeper level
     " or whatever
     " also nicely puts us somewhere sensible when we startup
+    " not working anymore for some reason
     au BufEnter * if (g:dwarf_mode == 0 && system(s:prg." p " . expand('%:p')) == "1") | call DrawDwarfCodebase() | endif
 augroup END
 
