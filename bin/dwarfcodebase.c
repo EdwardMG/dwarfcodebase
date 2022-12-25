@@ -43,6 +43,10 @@ void populate(struct cell* p, int l) {
         }
 }
 
+int findIndex(int d, int r, int c) {
+        return d * maxd * maxr + r * maxr + c;
+}
+
 void printFloor(int d, struct cell* p, int* l) {
         for (int r=0; r < maxr; r++) {
                 printf("\n");
@@ -51,14 +55,14 @@ void printFloor(int d, struct cell* p, int* l) {
                 // already so I don't want to add lines inbetween
                 printf("  "); // leading space for border
                 for (int c=0; c < maxc; c++) {
-                        char label = p[d * maxd * maxr + r * maxr + c].label;
+                        char label = p[ findIndex(d, r, c) ].label;
                         if (l[0] == d && l[1] == r && l[2] == c) {
                                 printf( "%c", tolower(label));
                         } else {
                                 printf( "%c", label);
                         }
                         /* printf(" "); */
-                        char next_label = p[d * maxd * maxr + r * maxr + c + 1].label;
+                        char next_label = p[ findIndex(d, r, c + 1) ].label;
                         if (label != 'X' && next_label != 'X' && c < maxc - 1) {
                                 printf("-");
                         } else {
@@ -136,7 +140,77 @@ void write(struct cell* p, int* l) {
         fclose(f);
 }
 
+struct In {
+        int argc;
+        int clear;
+        int print_location;
+        int label;
+        char move;
+        char label_value;
+        char path[BL];
+};
+
+struct In in;
+
+void setIn(int argc, char **argv) {
+        in.argc           = argc;
+        in.move           = '\0';
+        in.clear          = 0;
+        in.print_location = 0;
+        in.label          = 0;
+        in.label_value    = 'X'; // our default empty space
+        in.path[0]        = '\0';
+
+
+        if (argc > 1) {
+                char cmd  = argv[1][0];
+                char cmd2 = argv[1][1];
+
+                if (cmd == 'j' || // up
+                    cmd == 'k' || // down
+                    cmd == 'h' || // left
+                    cmd == 'l' || // right
+                    cmd == 'd' || // descend
+                    cmd == 'f')   // float
+                        in.move = cmd;
+                else if (cmd == 'e') in.clear = 1;
+                else if (cmd == 'p') {
+                        in.print_location = 1;
+                        if (argc > 2) {
+                                if (argv[2][0] == '/') {
+                                        strlcpy(in.path, argv[2], BL);
+                                } else {
+                                        printf("Recieved '%s', but expected a path starting with /.", argv[2]);
+                                        exit(1);
+                                }
+                        } else {
+                                printf("Recieved '%s' (print location), but no path followed.", argv[1]);
+                                exit(1);
+                        }
+                } else if (cmd == 'x') {
+                        in.label = 1;
+                        in.label_value = cmd2;
+                        if (argc > 2) {
+                                if (argv[2][0] == '/') {
+                                        strlcpy(in.path, argv[2], BL);
+                                } else {
+                                        printf("Recieved '%s', but expected a path starting with /.", argv[2]);
+                                        exit(1);
+                                }
+                        } else {
+                                printf("Recieved '%s' (set label), but no path followed.", argv[1]);
+                                exit(1);
+                        }
+                } else {
+                        printf("Recieved '%c' as argument, but no such action exists.", argv[1][0]);
+                        exit(1);
+                }
+        }
+}
+
 int main(int argc, char **argv) {
+        setIn(argc, argv);
+
         char cmd = argc > 1 ? argv[1][0] : '\0';
 
         int max = maxd * maxr * maxc;
@@ -146,10 +220,9 @@ int main(int argc, char **argv) {
 
         read(a, l);
 
-        if (cmd == 'p') { // "print" location
-                if ( argc == 2) return 0; // did not recieve a path (it was blank or something)
+        if (in.print_location) {
                 for (int i=0; i < max; i++) {
-                        if (strcmp(a[i].path, argv[2]) == 0) {
+                        if ( strcmp(a[i].path, in.path) == 0 ) {
                                 l[0] = i / 100;
                                 l[1] = (i - (l[0] * 100)) / 10;
                                 l[2] = i - (l[0] * 100) - (l[1] * 10);
@@ -162,29 +235,26 @@ int main(int argc, char **argv) {
                 return 0;
         }
 
-        if (cmd == 'h' && l[2] > 0)      l[2] = l[2] - 1;
-        if (cmd == 'j' && l[1] < maxr-1) l[1] = l[1] + 1;
-        if (cmd == 'k' && l[1] > 0)      l[1] = l[1] - 1;
-        if (cmd == 'l' && l[2] < maxc-1) l[2] = l[2] + 1;
-        if (cmd == 'f' && l[0] > 0)      l[0] = l[0] - 1;
-        if (cmd == 'd' && l[0] < maxd-1) l[0] = l[0] + 1;
+        if (in.move == 'h' && l[2] > 0)      l[2] = l[2] - 1;
+        if (in.move == 'j' && l[1] < maxr-1) l[1] = l[1] + 1;
+        if (in.move == 'k' && l[1] > 0)      l[1] = l[1] - 1;
+        if (in.move == 'l' && l[2] < maxc-1) l[2] = l[2] + 1;
+        if (in.move == 'f' && l[0] > 0)      l[0] = l[0] - 1;
+        if (in.move == 'd' && l[0] < maxd-1) l[0] = l[0] + 1;
 
-        if (cmd == 'x') { // label (x marks the spot)
-                set(l[0], l[1], l[2], argv[1][1], argv[2], a);
-        }
-
-        if (cmd == 'e') { // erase
-                set(l[0], l[1], l[2], 'X', "", a);
-        }
-
-        /* for (int i=0; i < 10; i++) printFloor(i, a); */
+        if (in.label) set(l[0], l[1], l[2], in.label_value, in.path, a);
+        if (in.clear) set(l[0], l[1], l[2], 'X', "", a);
 
         write(a, l);
         printFloor(l[0], a, l);
 
-        if (a[l[0] * maxd * maxr + l[1] * maxr + l[2]].path[0]) {
-                printf("\n%s", a[l[0] * maxd * maxr + l[1] * maxr + l[2]].path);
-        } else {
+        int index = findIndex( l[0], l[1], l[2] );
+        if (a[ index ].path[0])
+                printf("\n%s", a[ index ].path);
+        else
                 printf("\n\n");
-        }
+
+        return 0;
 }
+
+/* for (int i=0; i < 10; i++) printFloor(i, a); */
