@@ -17,6 +17,8 @@ syntax keyword Seven 7
 syntax keyword Eight 8
 syntax keyword Nine 9
 
+" Zero through Four might better be reversed, so it's darkest at either end
+" instead of going bright to dark suddenly light again to dark
 highlight Zero  ctermfg=cyan
 highlight One   ctermfg=78
 highlight Two   ctermfg=45

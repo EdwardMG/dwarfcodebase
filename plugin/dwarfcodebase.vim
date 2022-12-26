@@ -48,9 +48,14 @@ fu! EraseLabelDwarfCodebase()
 endfu
 
 fu! LabelDwarfCodebase(a)
-  let r = systemlist(s:prg . ' x' . a:a . ' ' . shellescape(expand('%:p')))[0:-2]
-  call popup_clear()
-  call DrawDwarfPopup(r)
+  let r = systemlist(s:prg . ' m' . a:a . ' ' . shellescape(expand('%:p')))
+  if r[-1][0] == "/"
+    let map = r[0:-2]
+    call popup_clear()
+    call DrawDwarfPopup(map)
+  else
+    echoerr r[-1]
+  endif
 endfu
 
 if !exists('g:DwarfMode') | let g:DwarfMode = 0 | endif
@@ -63,11 +68,11 @@ endif
 fu! DwarfMode()
   call DeactivateOtherModes('DwarfMode')
   let g:dwarf_mode = !g:dwarf_mode
-  if !exists('g:jor_old_mappings')
-    let g:jor_old_mappings   = {}
+  if !exists('g:dwarf_old_mappings')
+    let g:dwarf_old_mappings   = {}
   endif
-  if !exists('g:jor_old_v_mappings')
-    let g:jor_old_v_mappings = {}
+  if !exists('g:dwarf_old_v_mappings')
+    let g:dwarf_old_v_mappings = {}
   endif
 
   if g:dwarf_mode | let g:nyao_active_mode = 'DwarfMode' | endif
@@ -76,10 +81,10 @@ fu! DwarfMode()
   let v_keys_to_map = []
 
   for n in keys_to_map
-    let g:jor_old_mappings[ n ] = mapcheck( n, 'n')
+    let g:dwarf_old_mappings[ n ] = mapcheck( n, 'n')
   endfor
   for n in v_keys_to_map
-    let g:jor_old_v_mappings[ n ] = mapcheck( n, 'v')
+    let g:dwarf_old_v_mappings[ n ] = mapcheck( n, 'v')
   endfor
 
   if g:dwarf_mode
@@ -102,7 +107,7 @@ fu! DwarfMode()
     nno <silent> e :call EraseLabelDwarfCodebase()<CR>
 
     for letter in split('a b c d e f g h i j k l m n o p q r s t u v w y z') " no x
-      exe "nno <silent> x".letter." :call LabelDwarfCodebase('".toupper(letter)."')<CR>"
+      exe "nno <silent> m".letter." :call LabelDwarfCodebase('".toupper(letter)."')<CR>"
     endfor
 
     nno <silent> <Tab> :call DwarfMode()<CR>
@@ -110,9 +115,9 @@ fu! DwarfMode()
   else " exit dwarf mode
     let g:nyao_active_mode = ""
     for n in keys_to_map
-      if (has_key( g:jor_old_mappings, n ) ) && g:jor_old_mappings[ n ]
-        exe 'nno '.n.' '. g:jor_old_mappings[ n ]
-        unlet g:jor_old_mappings[ n ]
+      if (has_key( g:dwarf_old_mappings, n ) ) && g:dwarf_old_mappings[ n ]
+        exe 'nno '.n.' '. g:dwarf_old_mappings[ n ]
+        unlet g:dwarf_old_mappings[ n ]
       else
         exe 'nno '.n.' '.n
       endif
@@ -120,16 +125,16 @@ fu! DwarfMode()
     call ResetStatusColour()
 
     for n in v_keys_to_map
-      if (has_key( g:jor_old_mappings, n ) ) && g:jor_old_v_mappings[ n ]
-        exe 'vno '.n.' '. g:jor_old_v_mappings[ n ]
-        unlet g:jor_old_v_mappings[ n ]
+      if (has_key( g:dwarf_old_mappings, n ) ) && g:dwarf_old_v_mappings[ n ]
+        exe 'vno '.n.' '. g:dwarf_old_v_mappings[ n ]
+        unlet g:dwarf_old_v_mappings[ n ]
       else
         exe 'vno '.n.' '.n
       endif
     endfor
     call UnbindMode('DwarfMode') " Do I need this? probably
     for letter in split('a b c d e f g h i j k l m n o p q r s t u v w y z') " no x
-      exe "nunmap x".letter
+      exe "nunmap m".letter
     endfor
   endif
 endfu

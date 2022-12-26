@@ -173,8 +173,8 @@ void setIn(int argc, char **argv) {
                     cmd == 'd' || // descend
                     cmd == 'f')   // float
                         in.move = cmd;
-                else if (cmd == 'e') in.clear = 1;
-                else if (cmd == 'p') {
+                else if (cmd == 'e') in.clear = 1; // erase
+                else if (cmd == 'p') { // print location
                         in.print_location = 1;
                         if (argc > 2) {
                                 if (argv[2][0] == '/') {
@@ -187,7 +187,7 @@ void setIn(int argc, char **argv) {
                                 printf("Recieved '%s' (print location), but no path followed.", argv[1]);
                                 exit(1);
                         }
-                } else if (cmd == 'x') {
+                } else if (cmd == 'm') { // mark
                         in.label = 1;
                         in.label_value = cmd2;
                         if (argc > 2) {
