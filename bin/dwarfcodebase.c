@@ -5,28 +5,6 @@
 
 #define BL 255
 
-// - [x] 3d array
-// - [x] set value in 3d array
-// - [x] respond to command line arguments
-// - [x] read from file
-// - [x] write to file
-// - [x] read/write 3d array of structs (obviously a shorthand, maybe semicolon delimited? you need coordinate, label, action, type
-//       actually, probably more like label:type:action, and just let the linenumber be the index of the array, especially since it's
-//       defined as a flat array in reality, you just loop over every line
-// - [x] respond to command line write and label
-// - [x] tie into a vim mode
-// - [x] descend and ascend depth
-// - [x] don't allow moving location offmap (either beyond max or below min...)
-// - [x] vim mode to open files as it goes over labeled entries
-// - [x] erase label
-// - [-] if labels appear next to each other, it might be nice to draw a `-` or `|` to make visual connections easy to see
-//       did this for between cols and it looks nice, but there is no spacing between rows to put it without making it ugly
-// - [x] redraw popup on change buffer
-// - [x] remainder of alphabete for setting labels (after this it's pretty much usable!)
-
-// stretch
-// - [ ] it could be nice to have line number and column as well?
-
 int maxd = 10; // depth
 int maxr = 10; // row
 int maxc = 10; // col
@@ -89,6 +67,10 @@ void read(struct cell* p, int* l) {
 
         // C bullshit where we subtract '0' to get an int from a char
         // atoi expects a string so it's not convenient for us
+
+        // this will break if we ever go about 10 (index 9)
+        // in that case, we would have to create a separator and
+        // probably atoi and some temp string management
         l[0] = line[0] - '0';
         l[1] = line[1] - '0';
         l[2] = line[2] - '0';

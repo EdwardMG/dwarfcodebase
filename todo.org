@@ -1,0 +1,22 @@
+- [x] 3d array
+- [x] set value in 3d array
+- [x] respond to command line arguments
+- [x] read from file
+- [x] write to file
+- [x] read/write 3d array of structs (obviously a shorthand, maybe semicolon delimited? you need coordinate, label, action, type
+      actually, probably more like label:type:action, and just let the linenumber be the index of the array, especially since it's
+      defined as a flat array in reality, you just loop over every line
+- [x] respond to command line write and label
+- [x] tie into a vim mode
+- [x] descend and ascend depth
+- [x] don't allow moving location offmap (either beyond max or below min...)
+- [x] vim mode to open files as it goes over labeled entries
+- [x] erase label
+- [-] if labels appear next to each other, it might be nice to draw a `-` or `|` to make visual connections easy to see
+      did this for between cols and it looks nice, but there is no spacing between rows to put it without making it ugly
+- [x] redraw popup on change buffer
+- [x] remainder of alphabete for setting labels (after this it's pretty much usable!)
+- [ ] conf file for setting location of fortressmap (dftest) and maybe the path to make the executable to
+
+stretch
+- [ ] it could be nice to have line number and column as well?
