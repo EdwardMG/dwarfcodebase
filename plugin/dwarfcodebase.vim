@@ -113,6 +113,8 @@ fu! DwarfMode()
     nno <silent> <Tab> :call DwarfMode()<CR>
 
   else " exit dwarf mode
+    call system(s:prg." p " . expand('%:p'))
+    call DrawDwarfCodebase()
     let g:nyao_active_mode = ""
     for n in keys_to_map
       if (has_key( g:dwarf_old_mappings, n ) ) && g:dwarf_old_mappings[ n ]
@@ -152,7 +154,23 @@ augroup Dwarf
     " in case we forget we already set a file or it's on a much deeper level
     " or whatever
     " also nicely puts us somewhere sensible when we startup
-    " not working anymore for some reason
+    "
+    " One disadvantage is that when dwarf mode is active, occasionally we
+    " would like the map to update (sc hotkeys for example) The case for this
+    " is mainly we're NOT on an X spot, so we don't intend to add a new
+    " mapping AND the label already exists. The case when we don't want the
+    " map to update is when we DONT have the mapping and we ARE on an X spot
+    "
+    " Q: Does it really matter if we're on an X spot? eg if the mapping
+    " exists, should we always just move to it? Or is it important that we
+    " sometimes have the convenience of not updating the map? The problem
+    " we don't want to encounter is looking at another file and being forced
+    " back to the one in the map. And when we're still loaded on a file in the
+    " map, we DONT want to move back to there when we're trying to mark a new
+    " label on an x spot, hence when dwarf mode is on, we're also kind of in
+    " label / explore mode, when dwarf mode is off, we want the map to show
+    " where we are. So maybe all that's needed is on exiting dwarf mode,
+    " please redraw the map
     au BufEnter * if (g:dwarf_mode == 0 && system(s:prg." p " . expand('%:p')) == "1") | call DrawDwarfCodebase() | endif
 augroup END
 
