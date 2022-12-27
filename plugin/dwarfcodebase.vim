@@ -62,13 +62,15 @@ if !exists('g:DwarfMode') | let g:DwarfMode = 0 | endif
 
 if !exists('g:dwarf_mode')
   let g:dwarf_mode = 0
-  " FIXME dependency
-  call add(g:nyao_modes, { -> g:dwarf_mode })
+  if !exists('g:nyao_modes')
+    call add(g:nyao_modes, { -> g:dwarf_mode })
+  endif
 endif
 
 fu! DwarfMode()
-  " FIXME dependency
-  call DeactivateOtherModes('DwarfMode')
+  if !exists('g:nyao_modes')
+    call DeactivateOtherModes('DwarfMode')
+  endif
   let g:dwarf_mode = !g:dwarf_mode
   if !exists('g:dwarf_old_mappings')
     let g:dwarf_old_mappings   = {}
@@ -105,12 +107,6 @@ fu! DwarfMode()
     nno <silent> l :call MoveDwarfCodebase('l')<CR>
     nno <nowait><silent> f :call MoveDwarfCodebase('f')<CR>
     nno <nowait><silent> d :call MoveDwarfCodebase('d')<CR>
-    " this is waiting for some reason
-    " well, it seems to get quite wonky. It'll trigger gs too for example
-    " ah, it happens because I have a buffer mapping for some filetypes using
-    " g. so it overrides my mapping here. Unless I do an if dwarf mode every
-    " place that happens, I'll have this problem. maybe a less problematic key
-    " is cv
     nno <nowait><silent> c :call MoveDwarfCodebase('c')<CR>
     nno <nowait><silent> v :call MoveDwarfCodebase('v')<CR>
 
@@ -144,7 +140,7 @@ fu! DwarfMode()
         exe 'vno '.n.' '.n
       endif
     endfor
-    " call UnbindMode('DwarfMode') " Do I need this? probably
+    " call UnbindMode('DwarfMode')
     for letter in split('a b c d e f g h i j k l m n o p q r s t u v w y z') " no x
       exe "nunmap m".letter
     endfor
@@ -152,8 +148,6 @@ fu! DwarfMode()
 endfu
 
 nno <silent> cmd :call DwarfMode()<CR>
-" still not both under homerow... maybe just dk and give up survey mode which
-" I also don't use
 nno <silent> dh :call DwarfMode()<CR>
 command! Dwarf call DwarfMode()
 

@@ -66,7 +66,7 @@ digest allowing us to quickly ramp up on files we've visited before.
 `cmd` - change mode dwarf... active dwarf mode mappings for moving around popup map
 `<Tab>` - exit dwarf mode
 `hjkl` - in dwarf mode, move current position on popup map
-`x` - clear label at current position
+`e` - clear label at current position
 `m{letter}` - mark current position with label `letter` and the path of the current buffer
 `d` - descend one grid
 `f` - float up one grid
@@ -77,10 +77,13 @@ digest allowing us to quickly ramp up on files we've visited before.
 * Setup
 clone this repo somewhere
 pack add it
-chmod Makefile to have sufficient permissions
+optional: you may also want to run `call InitDwarfCodebase()` after your packadd in your vimrc
 run `make` in context of repo root
-chmod ~/bin/dwarfcodebase to have sufficient permissions
 create a ~/.dwarfrc file, add `storage_file: somefilename` to the first line. It will be created in the home directory and store your map
 
 * Caveats
-Works on my machine lol. Still have some dependencies on my personal environment lingering around
+Works on my machine lol. I tried to remove the dependencies on my local
+environment, but there's likely something I forgot and even more likely the way
+I map and unmap for the mode could fail if you have a filetype plugin that
+overrides the maps I create on entering a buffer. I'm not particularly intent
+on solving these issues robustly, so beware.

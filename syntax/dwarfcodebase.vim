@@ -31,9 +31,9 @@ highlight Eight ctermfg=130
 highlight Nine  ctermfg=57
 
 highlight Empty ctermfg=grey
-highlight You ctermfg=cyan cterm=bold
-highlight Marked ctermfg=red cterm=bold
-highlight Connector ctermfg=yellow cterm=bold
+highlight You ctermfg=cyan
+highlight Marked ctermfg=red
+highlight Connector ctermfg=yellow
 
 " referenced in the popup function
 hi DwarfPopup ctermbg=black
