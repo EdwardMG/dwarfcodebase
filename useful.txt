@@ -1,0 +1,20 @@
+
+really useful function for string concatonation
+  > snprintf(path, 255, "%s%c%s", getenv("HOME"), '/', "dftest");
+
+print location... not printf, formatted print to file
+  > fprintf(f, "%d", l[0]);
+
+C bullshit where we subtract '0' to get an int from a char
+atoi expects a string so it's not convenient for us
+  > l[0] = line[0] - '0';
+
+we can fscanf to do something like a regular expression
+pushing matches into buffers, really cool! although there's
+probably exploits since we don't say the length
+oh, we can limit how much it scans by putting a number before the type
+that should be safe enough
+  > char key[BL];
+  > char value[BL];
+  > fscanf(f, "%20s %254s", key, value);
+

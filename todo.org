@@ -12,11 +12,14 @@
 - [x] don't allow moving location offmap (either beyond max or below min...)
 - [x] vim mode to open files as it goes over labeled entries
 - [x] erase label
-- [-] if labels appear next to each other, it might be nice to draw a `-` or `|` to make visual connections easy to see
+- [x] if labels appear next to each other, it might be nice to draw a `-` or `|` to make visual connections easy to see
       did this for between cols and it looks nice, but there is no spacing between rows to put it without making it ugly
 - [x] redraw popup on change buffer
 - [x] remainder of alphabete for setting labels (after this it's pretty much usable!)
-- [ ] conf file for setting location of fortressmap (dftest) and maybe the path to make the executable to
+- [x] conf file for setting location of fortressmap (dftest) and maybe the path to make the executable to
+  - [x] I would like also to change the fortress name by a '.dwarfrc or something
+- [x] fix the Makefile (not writing to the correct path?)
+      It was fine, just needed to chmod it to have write permissions
 
 stretch
 - [ ] it could be nice to have line number and column as well?

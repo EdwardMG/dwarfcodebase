@@ -26,9 +26,9 @@ void populate(struct cell* p, int l) {
 
 int findIndex(int d, int r, int c, int z) {
         return maxz * maxd * maxr * z // thousands
-                + maxd * maxr * d // hundreds
-                + maxr * r // tens
-                + c; // ones
+                + maxd * maxr * d     // hundreds
+                + maxr * r            // tens
+                + c;                  // ones
 }
 
 void printFloor(int d, int z, struct cell* p, int* l) {
@@ -56,7 +56,7 @@ void printFloor(int d, int z, struct cell* p, int* l) {
                 else
                         printf(" "); // trailing space for border
         }
-        printf("\n           %i", d);
+        printf("\n           %i", d); // centre depth at bottom
 }
 
 void set(int d, int r, int c, int z, char l, char* action, struct cell* p) {
@@ -67,8 +67,11 @@ void set(int d, int r, int c, int z, char l, char* action, struct cell* p) {
                 strlcpy(p[i].path, action, BL);
 }
 
-void read(struct cell* p, int* l) {
-        FILE* f = fopen("/Users/edwardgallant/dftest", "r"); if (!f) return;
+void read(struct cell* p, int* l, char* db_filename) {
+        char path[255];
+        snprintf(path, 255, "%s%c%s", getenv("HOME"), '/', db_filename);
+
+        FILE* f = fopen(path, "r"); if (!f) return;
         char line[BL];
         fgets(line, BL, f);
 
@@ -102,15 +105,12 @@ void read(struct cell* p, int* l) {
         fclose(f);
 }
 
-void write(struct cell* p, int* l) {
-        // const char* s = getenv("HOME");
-        // have to do this and manually concat the strings
-        // to make this generic
-        // it's only for me so... who cares
-        FILE* f = fopen("/Users/edwardgallant/dftest", "w+"); if (!f) return;
+void write(struct cell* p, int* l, char* db_filename) {
+        char path[255];
+        snprintf(path, 255, "%s%c%s", getenv("HOME"), '/', db_filename);
+        FILE* f = fopen(path, "w+"); if (!f) return;
         char line[BL];
 
-        // print location... not printf, formatted print to file
         fprintf(f, "%d", l[0]);
         fprintf(f, "%d", l[1]);
         fprintf(f, "%d", l[2]);
@@ -200,8 +200,32 @@ void setIn(int argc, char **argv) {
         }
 }
 
+void getDBFilename(char* db_filename) {
+        char p[255];
+        snprintf(p, 255, "%s%s", getenv("HOME"), "/.dwarfrc");
+
+        FILE* f = fopen(p, "r");
+        if (!f) {
+                printf("Tried to find %s but it did not exist. Please add configuration (see readme).", p);
+                fclose(f);
+                exit(1);
+        }
+        char key[BL];
+
+        fscanf(f, "%s %s", key, db_filename);
+        fclose(f);
+
+        if (!(strcmp("storage_file:", key) == 0)) {
+                printf("expected 'storage_file: ' to preceed filename, but found %s", key);
+                exit(1);
+        }
+}
+
 int main(int argc, char **argv) {
         setIn(argc, argv);
+
+        char db_filename[BL];
+        getDBFilename(db_filename);
 
         char cmd = argc > 1 ? argv[1][0] : '\0';
 
@@ -210,7 +234,7 @@ int main(int argc, char **argv) {
         int l[4] = {0, 0, 0, 0}; // depth, row, col, Z-dimension
         populate(a, max);
 
-        read(a, l);
+        read(a, l, db_filename);
 
         if (in.print_location) {
                 for (int i=0; i < max; i++) {
@@ -222,7 +246,7 @@ int main(int argc, char **argv) {
                                 l[1]          = (i - thousands - hundreds) / 10;  // r
                                 int tens      = l[1] * 10;
                                 l[2]          = i -  thousands - hundreds - tens; // c
-                                write(a, l);
+                                write(a, l, db_filename);
                                 printf("1");
                                 return 0;
                         }
@@ -238,13 +262,19 @@ int main(int argc, char **argv) {
         if (in.move == 'f' && l[0] > 0)      l[0] = l[0] - 1;
         if (in.move == 'd' && l[0] < maxd-1) l[0] = l[0] + 1;
 
+        // these next two are kind of backwards from d and f unfortunately
+        // but I kind of find it confusing in either case, I either don't have
+        // the mneumonic and I want it to match left and right, or I do and I
+        // want it to match the mneumonic
+        // one nice thing about them being backward tho is it makes
+        // dvdvdvdv or cfcfcfcfcf pretty easy to type for going diagonal
         if (in.move == 'c' && l[3] > 0)      l[3] = l[3] - 1;
         if (in.move == 'v' && l[3] < maxd-1) l[3] = l[3] + 1;
 
         if (in.label) set(l[0], l[1], l[2], l[3], in.label_value, in.path, a);
         if (in.clear) set(l[0], l[1], l[2], l[3], 'X', "", a);
 
-        write(a, l);
+        write(a, l, db_filename);
         printFloor(l[0], l[3], a, l);
 
         int index = findIndex( l[0], l[1], l[2], l[3] );
