@@ -95,11 +95,12 @@ fu! DwarfMode()
 
     call DrawDwarfCodebase()
 
-    " this is not working? weird
-    if &bg=="dark"
-      hi StatusLine ctermbg=136 ctermfg=black
-    else
-      hi StatusLine ctermbg=white ctermfg=brown
+    if !exists('g:nyao_modes')
+      if &bg=="dark"
+        hi StatusLine ctermbg=171 ctermfg=black
+      else
+        hi StatusLine ctermbg=white ctermfg=brown
+      endif
     endif
     nno <silent> h :call MoveDwarfCodebase('h')<CR>
     nno <silent> j :call MoveDwarfCodebase('j')<CR>
@@ -130,7 +131,10 @@ fu! DwarfMode()
         exe 'nno '.n.' '.n
       endif
     endfor
-    " call ResetStatusColour()
+
+    if !exists('g:nyao_modes')
+      call ResetStatusColour()
+    endif
 
     for n in v_keys_to_map
       if (has_key( g:dwarf_old_mappings, n ) ) && g:dwarf_old_v_mappings[ n ]
@@ -140,7 +144,9 @@ fu! DwarfMode()
         exe 'vno '.n.' '.n
       endif
     endfor
-    " call UnbindMode('DwarfMode')
+    if !exists('g:nyao_modes')
+      call UnbindMode('DwarfMode')
+    endif
     for letter in split('a b c d e f g h i j k l m n o p q r s t u v w y z') " no x
       exe "nunmap m".letter
     endfor
