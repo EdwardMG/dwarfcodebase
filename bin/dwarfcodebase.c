@@ -8,6 +8,9 @@
 int maxd = 10; // depth
 int maxr = 10; // row
 int maxc = 10; // col
+int maxz = 10; // 4th dimension
+
+int maxall = 10000;
 
 struct cell {
         char label;
@@ -21,43 +24,47 @@ void populate(struct cell* p, int l) {
         }
 }
 
-int findIndex(int d, int r, int c) {
-        return d * maxd * maxr + r * maxr + c;
+int findIndex(int d, int r, int c, int z) {
+        return maxz * maxd * maxr * z // thousands
+                + maxd * maxr * d // hundreds
+                + maxr * r // tens
+                + c; // ones
 }
 
-void printFloor(int d, struct cell* p, int* l) {
+void printFloor(int d, int z, struct cell* p, int* l) {
         for (int r=0; r < maxr; r++) {
                 printf("\n");
-                // if we want up and down pipes, we have to do more than just print a new line
-                // actually, we don't print a new line at all, it's single spaced. hmmm. I like how they're spaced
-                // already so I don't want to add lines inbetween
                 printf("  "); // leading space for border
                 for (int c=0; c < maxc; c++) {
-                        char label = p[ findIndex(d, r, c) ].label;
-                        if (l[0] == d && l[1] == r && l[2] == c) {
+                        char label = p[ findIndex(d, r, c, z) ].label;
+                        if (l[0] == d && l[3] == z && l[1] == r && l[2] == c) {
                                 printf( "%c", tolower(label));
                         } else {
                                 printf( "%c", label);
                         }
                         /* printf(" "); */
-                        char next_label = p[ findIndex(d, r, c + 1) ].label;
+                        char next_label = p[ findIndex(d, r, c + 1, z) ].label;
                         if (label != 'X' && next_label != 'X' && c < maxc - 1) {
                                 printf("-");
                         } else {
                                 printf(" ");
                         }
                 }
-                printf(" "); // trailing space for border
+
+                if (r == 4)
+                        printf("%i", z); // z in centre right
+                else
+                        printf(" "); // trailing space for border
         }
         printf("\n           %i", d);
 }
 
-void set(int d, int r, int c, char l, char* action, struct cell* p) {
-        p[d * maxd * maxr + r * maxr + c].label = l;
+void set(int d, int r, int c, int z, char l, char* action, struct cell* p) {
+        int i = findIndex(d, r, c, z);
+        p[i].label = l;
 
-        if (action[0] == '/') {
-                strlcpy(p[d * maxd * maxr + r * maxr + c].path, action, BL);
-        }
+        if (action[0] == '/')
+                strlcpy(p[i].path, action, BL);
 }
 
 void read(struct cell* p, int* l) {
@@ -74,11 +81,11 @@ void read(struct cell* p, int* l) {
         l[0] = line[0] - '0';
         l[1] = line[1] - '0';
         l[2] = line[2] - '0';
+        l[3] = line[3] - '0';
 
-        // 1000 is the max, but for messing around I hard coded it
         // BL is the buflength to read in; could result in bugs where things
         // are mislabeled if it ever went over, which it well could given our long paths
-        for (int i = 0; i < 1000 && fgets(line, BL, f); i++) {
+        for (int i = 0; i < maxall && fgets(line, BL, f); i++) {
                 p[i].label = line[0];
                 if ( line[1] == '/' ) {
                         int j = 1;
@@ -103,14 +110,15 @@ void write(struct cell* p, int* l) {
         FILE* f = fopen("/Users/edwardgallant/dftest", "w+"); if (!f) return;
         char line[BL];
 
-        // print location... not fprintf, formatted print to file
+        // print location... not printf, formatted print to file
         fprintf(f, "%d", l[0]);
         fprintf(f, "%d", l[1]);
         fprintf(f, "%d", l[2]);
+        fprintf(f, "%d", l[3]);
         fputs("\n\0", f);
 
         // put each label and path
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < maxall; i++) {
                 line[0] = p[i].label;
                 line[1] = '\0';
                 fputs(line, f);
@@ -152,6 +160,8 @@ void setIn(int argc, char **argv) {
                     cmd == 'k' || // down
                     cmd == 'h' || // left
                     cmd == 'l' || // right
+                    cmd == 'v' || // go forward in z dimension
+                    cmd == 'c' || // backward in z dimension
                     cmd == 'd' || // descend
                     cmd == 'f')   // float
                         in.move = cmd;
@@ -195,9 +205,9 @@ int main(int argc, char **argv) {
 
         char cmd = argc > 1 ? argv[1][0] : '\0';
 
-        int max = maxd * maxr * maxc;
+        int max = maxd * maxr * maxc * maxz;
         struct cell a[max];
-        int l[3] = {0, 0, 0};
+        int l[4] = {0, 0, 0, 0}; // depth, row, col, Z-dimension
         populate(a, max);
 
         read(a, l);
@@ -205,9 +215,13 @@ int main(int argc, char **argv) {
         if (in.print_location) {
                 for (int i=0; i < max; i++) {
                         if ( strcmp(a[i].path, in.path) == 0 ) {
-                                l[0] = i / 100;
-                                l[1] = (i - (l[0] * 100)) / 10;
-                                l[2] = i - (l[0] * 100) - (l[1] * 10);
+                                l[3]          = i / 1000;                         // z
+                                int thousands = l[3] * 1000;
+                                l[0]          = (i - thousands ) / 100;           // d
+                                int hundreds  = l[0] * 100;
+                                l[1]          = (i - thousands - hundreds) / 10;  // r
+                                int tens      = l[1] * 10;
+                                l[2]          = i -  thousands - hundreds - tens; // c
                                 write(a, l);
                                 printf("1");
                                 return 0;
@@ -224,13 +238,16 @@ int main(int argc, char **argv) {
         if (in.move == 'f' && l[0] > 0)      l[0] = l[0] - 1;
         if (in.move == 'd' && l[0] < maxd-1) l[0] = l[0] + 1;
 
-        if (in.label) set(l[0], l[1], l[2], in.label_value, in.path, a);
-        if (in.clear) set(l[0], l[1], l[2], 'X', "", a);
+        if (in.move == 'c' && l[3] > 0)      l[3] = l[3] - 1;
+        if (in.move == 'v' && l[3] < maxd-1) l[3] = l[3] + 1;
+
+        if (in.label) set(l[0], l[1], l[2], l[3], in.label_value, in.path, a);
+        if (in.clear) set(l[0], l[1], l[2], l[3], 'X', "", a);
 
         write(a, l);
-        printFloor(l[0], a, l);
+        printFloor(l[0], l[3], a, l);
 
-        int index = findIndex( l[0], l[1], l[2] );
+        int index = findIndex( l[0], l[1], l[2], l[3] );
         if (a[ index ].path[0])
                 printf("\n%s", a[ index ].path);
         else

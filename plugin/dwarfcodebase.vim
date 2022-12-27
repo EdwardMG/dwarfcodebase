@@ -77,7 +77,7 @@ fu! DwarfMode()
 
   if g:dwarf_mode | let g:nyao_active_mode = 'DwarfMode' | endif
 
-  let keys_to_map   = ['j', 'k', 'h', 'l', 'f', 'd', 'xo', 'e', '<Tab>']
+  let keys_to_map   = ['j', 'k', 'h', 'l', 'f', 'd', 'xo', 'e', 'c', 'v', '<Tab>']
   let v_keys_to_map = []
 
   for n in keys_to_map
@@ -103,6 +103,14 @@ fu! DwarfMode()
     nno <silent> l :call MoveDwarfCodebase('l')<CR>
     nno <nowait><silent> f :call MoveDwarfCodebase('f')<CR>
     nno <nowait><silent> d :call MoveDwarfCodebase('d')<CR>
+    " this is waiting for some reason
+    " well, it seems to get quite wonky. It'll trigger gs too for example
+    " ah, it happens because I have a buffer mapping for some filetypes using
+    " g. so it overrides my mapping here. Unless I do an if dwarf mode every
+    " place that happens, I'll have this problem. maybe a less problematic key
+    " is cv
+    nno <nowait><silent> c :call MoveDwarfCodebase('c')<CR>
+    nno <nowait><silent> v :call MoveDwarfCodebase('v')<CR>
 
     nno <silent> e :call EraseLabelDwarfCodebase()<CR>
 
