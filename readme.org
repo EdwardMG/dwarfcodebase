@@ -1,0 +1,86 @@
+* Limitations
+This may not work in neovim as it uses Bram's popup api and parts would need to
+be ported to neovim.
+* What is it?
+A way to navigate interesting files via grids. The visible grid is 10x10 as below:
+#+BEGIN_SRC
+
+  X R-U-D X X X X X X
+  X X t-V-C X X X X X
+  X X X S-M X X X X X
+  X X X X X X X X X X
+  I-S-I X X X X X X X 0
+  X X J-K-Q X X X X X
+  X X X X X X X X X X
+  X X X X X X X X X X
+  X X X X X X X X X X
+  X X X X X X X X X X
+           0
+#+END_SRC
+
+and appears in a popup. The number at the centre bottom represents the depth
+(zero to nine) and the number on the right represents a 4th dimension (zero to
+nine) for a total of 100 10x10 grids. X is an unfilled cell in the grid, which
+appears grey in the popup. Letters other than X are labels (kinda like marks)
+highlighted red that represent positions in the grid populated by a file. A
+lower case letter represents your current coordinates, highlighted cyan, eg:
+the buffer you current have open or an unlabeled coordinate you are preparing
+to label.
+
+* Inspiration, Problem-To-Solve, Reasoning
+Dwarf Codebase takes its name from Dwarf Fortress. Dwarf Fortress is a game
+played on a grid in which you can descend in depth to view your dwarves dug-out
+homes and caverns and other things. This is a very loose approximation of this layout,
+but I like to think of it as a File Cube (width height and depth) or a File
+HyperCube (width, height, depth and z), although we could also think of it as a
+flat plane where you only see 10x10 at a time and can go up down left and right.
+
+The problem this program attempts to solve is the proliferation of interelated
+files in corporate codebases. Because of the tendency to split out
+functionality and features across large numbers of configuration, utility, test
+and dependent files, it can become unmanageable to keep these files in flat
+lists such as vim's tab system, the split window system, marks or anything like
+this. Especially as one goes back and forth between tasks in the course of
+waiting on reviews for PRs or revisiting features for the next slice of work
+once another piece as unblocked you. It solves this problem by giving us a
+persistent map of our files, a beautiful visual representation of the
+relationships of those files in 2d and 3d space, and just a nicer way to
+organize closely related things that might otherwise be spread acorss very
+distant directories in the filesystem.
+
+Because human memory is very visual the ability to draw our files into shapes
+on a grid gives us an excellent high level view of concerns at just a glance.
+This helps make the large number of files we have to deal with feel much more
+manageable and less intimidating. Furthermore, although process diagrams are
+very popular in software, they are often so divorced from our actual programs
+that they provide very little value. By arranging files in 3d space, we have an
+opportunity to arrange relationships between files on numerous axis, including
+their importance, their interdependencies, and the amount in which they need to
+change together or the sequence in which we expect them to be executed. Because
+our map is persistent, that knowledge is saved for later and can be more easily
+recalled when we return to it, and follows a shorthand format that is easy to
+digest allowing us to quickly ramp up on files we've visited before.
+
+* Controls
+#+BEGIN_SRC markdown
+`cmd` - change mode dwarf... active dwarf mode mappings for moving around popup map
+`<Tab>` - exit dwarf mode
+`hjkl` - in dwarf mode, move current position on popup map
+`x` - clear label at current position
+`m{letter}` - mark current position with label `letter` and the path of the current buffer
+`d` - descend one grid
+`f` - float up one grid
+`c` - decrement z axis
+`v` - increment z axis
+#+END_SRC
+
+* Setup
+clone this repo somewhere
+pack add it
+chmod Makefile to have sufficient permissions
+run `make` in context of repo root
+chmod ~/bin/dwarfcodebase to have sufficient permissions
+create a ~/.dwarfrc file, add `storage_file: somefilename` to the first line. It will be created in the home directory and store your map
+
+* Caveats
+Works on my machine lol. Still have some dependencies on my personal environment lingering around
