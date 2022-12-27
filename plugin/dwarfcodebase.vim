@@ -62,10 +62,12 @@ if !exists('g:DwarfMode') | let g:DwarfMode = 0 | endif
 
 if !exists('g:dwarf_mode')
   let g:dwarf_mode = 0
+  " FIXME dependency
   call add(g:nyao_modes, { -> g:dwarf_mode })
 endif
 
 fu! DwarfMode()
+  " FIXME dependency
   call DeactivateOtherModes('DwarfMode')
   let g:dwarf_mode = !g:dwarf_mode
   if !exists('g:dwarf_old_mappings')
@@ -132,7 +134,7 @@ fu! DwarfMode()
         exe 'nno '.n.' '.n
       endif
     endfor
-    call ResetStatusColour()
+    " call ResetStatusColour()
 
     for n in v_keys_to_map
       if (has_key( g:dwarf_old_mappings, n ) ) && g:dwarf_old_v_mappings[ n ]
@@ -142,7 +144,7 @@ fu! DwarfMode()
         exe 'vno '.n.' '.n
       endif
     endfor
-    call UnbindMode('DwarfMode') " Do I need this? probably
+    " call UnbindMode('DwarfMode') " Do I need this? probably
     for letter in split('a b c d e f g h i j k l m n o p q r s t u v w y z') " no x
       exe "nunmap m".letter
     endfor
