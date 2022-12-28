@@ -82,16 +82,19 @@ fu! DwarfMode()
   if g:dwarf_mode | let g:nyao_active_mode = 'DwarfMode' | endif
 
   let keys_to_map   = ['j', 'k', 'h', 'l', 'f', 'd', 'xo', 'e', 'c', 'v', '<Tab>']
+  for letter in split('a b c d e f g h i j k l m n o p q r s t u v w y z') " no x
+    call add(keys_to_map, "m".letter)
+  endfor
+
   let v_keys_to_map = []
 
-  for n in keys_to_map
-    let g:dwarf_old_mappings[ n ] = mapcheck( n, 'n')
-  endfor
-  for n in v_keys_to_map
-    let g:dwarf_old_v_mappings[ n ] = mapcheck( n, 'v')
-  endfor
-
   if g:dwarf_mode
+    for n in keys_to_map
+      let g:dwarf_old_mappings[ n ] = mapcheck( n, 'n')
+    endfor
+    for n in v_keys_to_map
+      let g:dwarf_old_v_mappings[ n ] = mapcheck( n, 'v')
+    endfor
 
     call DrawDwarfCodebase()
 
@@ -124,12 +127,14 @@ fu! DwarfMode()
     call DrawDwarfCodebase()
     let g:nyao_active_mode = ""
     for n in keys_to_map
-      if (has_key( g:dwarf_old_mappings, n ) ) && g:dwarf_old_mappings[ n ]
+      if has_key( g:dwarf_old_mappings, n )
+            \ && type(g:dwarf_old_mappings[ n ]) == 1
+            \ && len(g:dwarf_old_mappings[ n ]) > 0
         exe 'nno '.n.' '. g:dwarf_old_mappings[ n ]
-        unlet g:dwarf_old_mappings[ n ]
       else
         exe 'nno '.n.' '.n
       endif
+      unlet g:dwarf_old_mappings[ n ]
     endfor
 
     if !exists('g:nyao_modes')
@@ -137,19 +142,18 @@ fu! DwarfMode()
     endif
 
     for n in v_keys_to_map
-      if (has_key( g:dwarf_old_mappings, n ) ) && g:dwarf_old_v_mappings[ n ]
+      if has_key( g:dwarf_old_mappings, n )
+            \ && type(g:dwarf_old_mappings[ n ]) == 1
+            \ && len(g:dwarf_old_mappings[ n ]) > 0
         exe 'vno '.n.' '. g:dwarf_old_v_mappings[ n ]
-        unlet g:dwarf_old_v_mappings[ n ]
       else
         exe 'vno '.n.' '.n
       endif
+      unlet g:dwarf_old_v_mappings[ n ]
     endfor
     if !exists('g:nyao_modes')
       call UnbindMode('DwarfMode')
     endif
-    for letter in split('a b c d e f g h i j k l m n o p q r s t u v w y z') " no x
-      exe "nunmap m".letter
-    endfor
   endif
 endfu
 
