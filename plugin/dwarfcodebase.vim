@@ -62,22 +62,14 @@ if !exists('g:DwarfMode') | let g:DwarfMode = 0 | endif
 
 if !exists('g:dwarf_mode')
   let g:dwarf_mode = 0
-  if !exists('g:nyao_modes')
-    call add(g:nyao_modes, { -> g:dwarf_mode })
-  endif
+  if !exists('g:nyao_modes') | call add(g:nyao_modes, { -> g:dwarf_mode }) | endif
 endif
 
 fu! DwarfMode()
-  if !exists('g:nyao_modes')
-    call DeactivateOtherModes('DwarfMode')
-  endif
+  if !exists('g:nyao_modes') | call DeactivateOtherModes('DwarfMode') | endif
   let g:dwarf_mode = !g:dwarf_mode
-  if !exists('g:dwarf_old_mappings')
-    let g:dwarf_old_mappings   = {}
-  endif
-  if !exists('g:dwarf_old_v_mappings')
-    let g:dwarf_old_v_mappings = {}
-  endif
+  if !exists('g:dwarf_old_mappings')   | let g:dwarf_old_mappings   = {} | endif
+  if !exists('g:dwarf_old_v_mappings') | let g:dwarf_old_v_mappings = {} | endif
 
   if g:dwarf_mode | let g:nyao_active_mode = 'DwarfMode' | endif
 
@@ -89,13 +81,9 @@ fu! DwarfMode()
   let v_keys_to_map = []
 
   if g:dwarf_mode
-    for n in keys_to_map
-      " mapcheck looks for matches, maparg checks exact match
-      let g:dwarf_old_mappings[ n ] = maparg( n, 'n')
-    endfor
-    for n in v_keys_to_map
-      let g:dwarf_old_v_mappings[ n ] = maparg( n, 'v')
-    endfor
+    " mapcheck looks for matches, maparg checks exact match
+    for n in keys_to_map   | let g:dwarf_old_mappings[ n ]   = maparg( n, 'n') | endfor
+    for n in v_keys_to_map | let g:dwarf_old_v_mappings[ n ] = maparg( n, 'v') | endfor
 
     call DrawDwarfCodebase()
 
