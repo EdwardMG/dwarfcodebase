@@ -90,10 +90,11 @@ fu! DwarfMode()
 
   if g:dwarf_mode
     for n in keys_to_map
-      let g:dwarf_old_mappings[ n ] = mapcheck( n, 'n')
+      " mapcheck looks for matches, maparg checks exact match
+      let g:dwarf_old_mappings[ n ] = maparg( n, 'n')
     endfor
     for n in v_keys_to_map
-      let g:dwarf_old_v_mappings[ n ] = mapcheck( n, 'v')
+      let g:dwarf_old_v_mappings[ n ] = maparg( n, 'v')
     endfor
 
     call DrawDwarfCodebase()
