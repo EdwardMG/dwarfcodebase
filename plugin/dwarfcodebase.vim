@@ -81,13 +81,23 @@ fu! DwarfMode()
   let v_keys_to_map = []
 
   if g:dwarf_mode
-    " mapcheck looks for matches, maparg checks exact match
-    for n in keys_to_map   | let g:dwarf_old_mappings[ n ]   = maparg( n, 'n') | endfor
-    for n in v_keys_to_map | let g:dwarf_old_v_mappings[ n ] = maparg( n, 'v') | endfor
+    for n in keys_to_map
+      let m = maplist()->filter({k, v -> v["mode"] == "n" && v["lhs"] == "n" && v["buffer"] == 0})
+      if len(m) > 0
+        let g:dwarf_old_mappings[ n ] = m[0]
+      endif
+    endfor
+    for n in v_keys_to_map
+      let m = maplist()->filter({k, v -> v["mode"] == "n" && v["lhs"] == "v" && v["buffer"] == 0})
+      if len(m) > 0
+        let g:dwarf_old_v_mappings[ n ] = m[0]
+      endif
+    endfor
 
     call DrawDwarfCodebase()
 
     if !exists('g:nyao_modes')
+      " it would be nice if we could programatically get the original color
       if &bg=="dark"
         hi StatusLine ctermbg=171 ctermfg=black
       else
@@ -119,13 +129,14 @@ fu! DwarfMode()
       if has_key( g:dwarf_old_mappings, n )
             \ && type(g:dwarf_old_mappings[ n ]) == 1
             \ && len(g:dwarf_old_mappings[ n ]) > 0
-        exe 'nno '.n.' '. g:dwarf_old_mappings[ n ]
+        call mapset(g:dwarf_old_mappings[ n ])
+        unlet g:dwarf_old_mappings[ n ]
       else
         exe 'nno '.n.' '.n
       endif
-      unlet g:dwarf_old_mappings[ n ]
     endfor
 
+    " we can extract this as a hook for exit/enter
     if !exists('g:nyao_modes')
       call ResetStatusColour()
     endif
@@ -134,11 +145,11 @@ fu! DwarfMode()
       if has_key( g:dwarf_old_mappings, n )
             \ && type(g:dwarf_old_mappings[ n ]) == 1
             \ && len(g:dwarf_old_mappings[ n ]) > 0
-        exe 'vno '.n.' '. g:dwarf_old_v_mappings[ n ]
+        call mapset(g:dwarf_old_v_mappings[ n ])
+        unlet g:dwarf_old_v_mappings[ n ]
       else
         exe 'vno '.n.' '.n
       endif
-      unlet g:dwarf_old_v_mappings[ n ]
     endfor
     if !exists('g:nyao_modes')
       call UnbindMode('DwarfMode')
