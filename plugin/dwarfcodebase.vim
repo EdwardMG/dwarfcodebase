@@ -122,8 +122,8 @@ fu! DwarfMode()
     let g:nyao_active_mode = ""
     for n in keys_to_map
       if has_key( g:dwarf_old_mappings, n )
-            \ && type(g:dwarf_old_mappings[ n ]) == 1
-            \ && len(g:dwarf_old_mappings[ n ]) > 0
+            \ && type(g:dwarf_old_mappings[ n ]) == 4
+            \ && len(g:dwarf_old_mappings[ n ]['rhs']) > 0
         call mapset(g:dwarf_old_mappings[ n ])
         unlet g:dwarf_old_mappings[ n ]
       else
@@ -137,9 +137,9 @@ fu! DwarfMode()
     endif
 
     for n in v_keys_to_map
-      if has_key( g:dwarf_old_mappings, n )
-            \ && type(g:dwarf_old_mappings[ n ]) == 1
-            \ && len(g:dwarf_old_mappings[ n ]) > 0
+      if has_key( g:dwarf_old_v_mappings, n )
+            \ && type(g:dwarf_old_v_mappings[ n ]) == 4
+            \ && len(g:dwarf_old_v_mappings[ n ]['rhs']) > 0
         call mapset(g:dwarf_old_v_mappings[ n ])
         unlet g:dwarf_old_v_mappings[ n ]
       else
