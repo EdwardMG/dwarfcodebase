@@ -1,10 +1,8 @@
 let s:prg = $HOME."/bin/dwarfcodebase"
 let s:title = "Dwarf Codebase"
 
-let g:dwarfpopup = 0
-
 fu! DrawDwarfPopup(content)
-  if g:dwarfpopup | call popup_clear(g:dwarfpopup) | endif
+  if exists("g:dwarfpopup") | call popup_close(g:dwarfpopup) | endif
   let g:dwarfpopup = popup_create(
         \ a:content,
         \ { 'padding':   [0,0,0,0]
@@ -34,7 +32,6 @@ endfu
 
 fu! MoveDwarfCodebase(a)
   let r = systemlist(s:prg . ' ' . a:a)
-  call popup_clear()
   call DrawDwarfPopup(r[0:-2])
   if r[-1] != ""
     exe "edit ".r[-1]
@@ -43,7 +40,6 @@ endfu
 
 fu! EraseLabelDwarfCodebase()
   let r = systemlist(s:prg . ' e')
-  call popup_clear()
   call DrawDwarfPopup(r[0:-2])
 endfu
 
@@ -51,7 +47,6 @@ fu! LabelDwarfCodebase(a)
   let r = systemlist(s:prg . ' m' . a:a . ' ' . shellescape(expand('%:p')))
   if r[-1][0] == "/"
     let map = r[0:-2]
-    call popup_clear()
     call DrawDwarfPopup(map)
   else
     echoerr r[-1]
