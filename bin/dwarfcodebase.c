@@ -63,8 +63,13 @@ void set(int d, int r, int c, int z, char l, char* action, struct cell* p) {
         int i = findIndex(d, r, c, z);
         p[i].label = l;
 
-        if (action[0] == '/')
-                strlcpy(p[i].path, action, BL);
+        // BL-1 might? protect against hitting the buffer limit and failing to
+        // write a \0 terminator. strcpy_s is supposed to do something like this,
+        // but it is inconsistently supported
+        if (action[0] == '/') // set path
+                strlcpy(p[i].path, action, BL-1);
+        if (action[0] == 'e') // erase
+                strlcpy(p[i].path, "", BL-1);
 }
 
 void read(struct cell* p, int* l, char* db_filename) {
@@ -170,7 +175,7 @@ void setIn(int argc, char **argv) {
                         in.print_location = 1;
                         if (argc > 2) {
                                 if (argv[2][0] == '/') {
-                                        strlcpy(in.path, argv[2], BL);
+                                        strlcpy(in.path, argv[2], BL-1);
                                 } else {
                                         printf("Recieved '%s', but expected a path starting with /.", argv[2]);
                                         exit(1);
@@ -184,7 +189,7 @@ void setIn(int argc, char **argv) {
                         in.label_value = cmd2;
                         if (argc > 2) {
                                 if (argv[2][0] == '/') {
-                                        strlcpy(in.path, argv[2], BL);
+                                        strlcpy(in.path, argv[2], BL-1);
                                 } else {
                                         printf("Recieved '%s', but expected a path starting with /.", argv[2]);
                                         exit(1);
@@ -202,7 +207,7 @@ void setIn(int argc, char **argv) {
 
 void getDBFilename(char* db_filename) {
         char p[255];
-        snprintf(p, 255, "%s%s", getenv("HOME"), "/.dwarfrc");
+        snprintf(p, 254, "%s%s", getenv("HOME"), "/.dwarfrc");
 
         FILE* f = fopen(p, "r");
         if (!f) {
@@ -212,6 +217,9 @@ void getDBFilename(char* db_filename) {
         }
         char key[BL];
 
+        // nice and dangerous, fscanf_s not available in C99.
+        // we could perhaps write some wrapper function instead, but since
+        // we're the ones writing this rc file, I'll leave it for now
         fscanf(f, "%s %s", key, db_filename);
         fclose(f);
 
@@ -272,7 +280,7 @@ int main(int argc, char **argv) {
         if (in.move == 'v' && l[3] < maxd-1) l[3] = l[3] + 1;
 
         if (in.label) set(l[0], l[1], l[2], l[3], in.label_value, in.path, a);
-        if (in.clear) set(l[0], l[1], l[2], l[3], 'X', "", a);
+        if (in.clear) set(l[0], l[1], l[2], l[3], 'X',            "e",     a);
 
         write(a, l, db_filename);
         printFloor(l[0], l[3], a, l);
