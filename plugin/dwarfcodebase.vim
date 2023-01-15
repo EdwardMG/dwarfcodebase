@@ -77,13 +77,13 @@ fu! DwarfMode()
 
   if g:dwarf_mode
     for n in keys_to_map
-      let m = maplist()->filter({k, v -> v["mode"] == "n" && v["lhs"] == "n" && v["buffer"] == 0})
+      let m = maplist()->filter({k, v -> v["mode"] == "n" && v["lhs"] == n && v["buffer"] == 0})
       if len(m) > 0
         let g:dwarf_old_mappings[ n ] = m[0]
       endif
     endfor
     for n in v_keys_to_map
-      let m = maplist()->filter({k, v -> v["mode"] == "n" && v["lhs"] == "v" && v["buffer"] == 0})
+      let m = maplist()->filter({k, v -> v["mode"] == "v" && v["lhs"] == n && v["buffer"] == 0})
       if len(m) > 0
         let g:dwarf_old_v_mappings[ n ] = m[0]
       endif
