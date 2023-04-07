@@ -212,7 +212,6 @@ void getDBFilename(char* db_filename) {
         FILE* f = fopen(p, "r");
         if (!f) {
                 printf("Tried to find %s but it did not exist. Please add configuration (see readme).", p);
-                fclose(f);
                 exit(1);
         }
         char key[BL];
